@@ -616,7 +616,11 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     log_fatal("Failed to open input file '%s'.", name);
   }
 
+  // flux scaling defaults to the RXTE ASM 2-12keV fluxes
+  double scaleEmin = 2.;
+  double scaleEmax = 12.;
   double aFlux = 0.;
+  bool have_reference_range = false;
   double time = -1;
   int nBins = 0;
   int nPhaseBins = 0;
@@ -982,8 +986,42 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
           simulation_name = value;
           model_legend = legends.size()-1;
         } else if (key == "renormalize") {
-          GPST_ASSERT_NOT_ARRAY(renormalize);
-          GPST_USE_DOUBLE(renormalize, aFlux);
+          if (is_array) {
+            if (read_version < 14) {
+              log_fatal("On line %d of input file: Keyword 'renormalize' as "
+                        "array requires version 14 or greater of GPST.",
+                        linecount);
+            }
+            if (array.size() != 3) {
+              log_fatal("On line %d of input file: Number of components in key "
+                        "'renormalize' has to be 3.", linecount);
+            }
+            double renormalize_data[3];
+            GPST_CONVERT_ARRAY(renormalize, double, renormalize_data, array);
+            aFlux = renormalize_data[0];
+            scaleEmin = renormalize_data[1];
+            scaleEmax = renormalize_data[2];
+            have_reference_range = true;
+          } else {
+            GPST_USE_DOUBLE(renormalize, aFlux);
+          }
+        } else if (key == "referencerange") {
+          GPST_REQUIRE_MIN_VERSION(referencerange, 14);
+          if (have_reference_range) {
+            log_error("Keyword 'referencerange' already specified, or energy "
+                      "range given in 'renormalize' keyword. Ignoring second "
+                      "occurrence.");
+          } else {
+            GPST_ASSERT_ARRAY(referencerange);
+            if (array.size() != 2) {
+              log_fatal("On line %d of input file: Number of components in key "
+                        "'referencerange' has to be 2.", linecount);
+            }
+            double referencerange_data[4];
+            GPST_CONVERT_ARRAY(referencerange, double, referencerange_data, array);
+            scaleEmin = referencerange_data[0];
+            scaleEmax = referencerange_data[1];
+          }
         } else if (key == "fluxunit") {
           GPST_REQUIRE_MIN_VERSION(fluxunit, 11);
           GPST_ASSERT_NOT_ARRAY(fluxunit);
@@ -1578,10 +1616,9 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
               " keywords. Please use only one of them.");
   }
 
-  log_info("Average flux in mCrab: %.2lf", aFlux);
   log_info("Observation time %.1lf day(s)", time/86400);
   log_info("Number of spectral components: %d", nComp);
-  log_info("Number of X-Calibur energy bins: %d", nBins-1);
+  log_info("Number of energy bins: %d", nBins-1);
 
   for (int i = 0; i < nBins; i++) {
     log_debug("Energy %d = %lgkeV", i+1, bEnergy[i]);
@@ -1685,7 +1722,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     d.frameHeight = 240;
     d.frameWidth = 564;
     d.leftMargin = 125;
-    d.rightMargin = 20;
+    d.rightMargin = 40;
     d.bottomMargin = 85;
     d.topMargin = 22;
     d.textHeight = 32;
@@ -1783,32 +1820,35 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
             
       points++;
     }
-    log_debug("Energy bin [%g -- %g] ==> points %d", bEnergy[i], bEnergy[i+1], points);
+    log_debug("Energy bin [%g -- %g] ==> points %d",
+              bEnergy[i], bEnergy[i+1], points);
   }
 
-
-  double average1=0.;
-  double average2=0.;
-  for (int i = 0; i < NumBins; ++i) {
-    double eC = eSensitivityMin + 0.5*deltaESensitivity + i * deltaESensitivity;
-    if (eC > 12.) break;  // we refer to the RXTE ASM 2-12keV fluxes
-
-    double isum = 0;
-    for (int j = 0; j < nComp; ++j) {
-      isum += get_table(dE[j], dI[j], nP[j], eC);
-    }
-
-    if (isum > 0.) {
-      average1 += isum/eC; /* we divide by eC here to get the flux - rather than the nu-Fnu flux */
-      average2 += Crab(eC)/eC; /* do the same for the Crab */
-    }
-  }
     
-  log_info("The fluxes you entered correspond to: %.3lg mCrab", average1/average2*1000.);
+  if (aFlux > 0.) {
+    double average1=0.;
+    double average2=0.;
+    for (int i = 0; i < NumBins; ++i) {
+      double eC =
+        eSensitivityMin + 0.5*deltaESensitivity + i * deltaESensitivity;
+      if (eC < scaleEmin) continue;
+      if (eC > scaleEmax) break;
+      
+      double isum = 0;
+      for (int j = 0; j < nComp; ++j) {
+        isum += get_table(dE[j], dI[j], nP[j], eC);
+      }
+      
+      if (isum > 0.) {
+        /* we divide by eC here to get the flux - rather than the nu-Fnu flux */
+        average1 += isum/eC;
+        average2 += Crab(eC)/eC; /* do the same for the Crab */
+      }
+    }
     
-  if (aFlux>0.)
-  {
+    log_info("The fluxes you entered correspond to: %.3lg mCrab", average1/average2*1000.);
     log_info("Renormalizing flux to %.3lg mCrab", aFlux);
+
     double scale = aFlux/(average1/average2)/1000.;
     log_info("Scaling factor: %.3f", scale);
  
@@ -1825,7 +1865,6 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   }
 
   if (have_phase) {
-  
     for (int i = 0; i < nPPhi; ++i) {
       dPhiChi[i] += deltachi;
       if (dPhiChi[i] > 90) dPhiChi[i] -= 180;
@@ -1896,8 +1935,11 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     legends[i].legend->SetName(TString::Format("legend%zu", i));
   }
 
-  while (sumFlux->GetX()[0] < modelXmin) sumFlux->RemovePoint(0);
-  while (sumFlux->GetX()[sumFlux->GetN()-1] > modelXmax) sumFlux->RemovePoint(sumFlux->GetN()-1);
+  while (sumFlux->GetX()[0] < modelXmin)
+    sumFlux->RemovePoint(0);
+  while (sumFlux->GetX()[sumFlux->GetN()-1] > modelXmax)
+    sumFlux->RemovePoint(sumFlux->GetN()-1);
+
   if (fluxunit == CGSe9) {
     for (int i = 0; i < sumFlux->GetN(); ++i) {
       double px, py;
@@ -2151,7 +2193,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
                          FluxM, PiM, ChiM, FluxE, PiELow, PiEHigh, ChiE);
       FluxM /= binfraction;
       FluxE /= binfraction;
-      double mdp = mdpFactor * sqrt(thisSignal + thisBackground) / (modulationFactor * thisSignal);
+      double mdp = mdpFactor * sqrt(thisSignal + thisBackground) /
+                     (modulationFactor * thisSignal);
 
       log_debug("Bin %d, Phase %.2lf: aT = %.2lf, aM = %.2lf, mu = %.2lf, "
                 "chi = %.2lf, ChiM = %.2lf, ChiE = %.2lf", i+1, xc[kd], pi, PiM,
@@ -2179,7 +2222,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       xep[kd]=bEnergy[i+1]-eC;
       xem[kd]=eC-bEnergy[i];
       
-      // Now, let's get the theoretical pol degree and pol. direction at the centers of all bins
+      // Now, let's get the theoretical pol degree and pol. direction at the
+      // centers of all bins
       double tPiV  = get_table(&x[0], &yPi[0], points, eC);
       double tChiV = get_table(&x[0], &yChi[0], points, eC);
       
@@ -2189,7 +2233,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       double fluxInt=0;
       double modulationFactor = 0;
       int intP = 0;
-      for (double energy=bEnergy[i]; energy<=bEnergy[i+1];
+      for (double energy=bEnergy[i];
+           energy<=bEnergy[i+1];
            energy += deltaESensitivity, ++intP)
       {
         double eC2=energy + 0.5 * deltaESensitivity;
@@ -2211,6 +2256,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
 
         //log_debug("Energy %.1fkeV: Weight = %g, Crab = %g, nS = %g", eC2, weight/time, crab, nS[bin]);
       }
+      
       modulationFactor /= fluxInt;
       nSignalTotal += nSignal;
       log_debug("eC: %.2f -- nSignal: %.2f", eC, nSignal);
@@ -2308,7 +2354,9 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   c00[0]->Divide(1, panels.size());
 
   TH1F *hFrame = NULL;
-  vector<Panel>::const_iterator panel_iter = std::find(panels.begin(), panels.end(), Flux);
+  vector<Panel>::const_iterator panel_iter =
+    std::find(panels.begin(), panels.end(), Flux);
+
   if (panel_iter != panels.end()) {
     log_info("Now drawing intensities");
     int panel = panel_iter - panels.begin() + 1;
@@ -2456,7 +2504,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       avgPolError += bPi->GetEYlow()[i] + bPi->GetEYhigh()[i];
     }
     avgPolError /= 2*bPi->GetN();
-    log_info("Average error on the polarization fraction: %.2f%%", (fractionunit == Frac ? 100 : 1)*avgPolError);
+    log_info("Average error on the polarization fraction: %.2f%%",
+             (fractionunit == Frac ? 100 : 1)*avgPolError);
 
     c00[0]->cd();
     c00[0]->Update();
@@ -2872,13 +2921,13 @@ void style()
 
 bool read_version_info(const std::string &line, int &version, int linecount)
 {
-  if (line.substr(0, 3) != "GPST") {
+  if (line.substr(0, 4) != "GPST") {
     log_error("On line %d of input file: First line must be version info line "
               "(GPST %d).", linecount, GPST_VERSION);
     return false;
   }
 
-  size_t strpos = 3;
+  size_t strpos = 4;
   for ( ; strpos != line.length() && isspace(line[strpos]); ++strpos) ;
 
   if (strpos == line.length()) {
@@ -2908,8 +2957,9 @@ bool read_version_info(const std::string &line, int &version, int linecount)
   // by construction, version_string is an integer
   version = atoi(version_string.c_str());
   if (version > GPST_VERSION) {
-    log_error("File version is %d, but this version of the X-Calibur Simulation "
-              "Tools can only read version %d and older.", version, GPST_VERSION);
+    log_error("File version is %d, but this version of the Gamma-ray "
+              "Polarimetry Simulation Toolkit can only read version %d and "
+              "older.", version, GPST_VERSION);
     return false;
   }
 
@@ -3349,7 +3399,7 @@ void saveAs(const std::string &filename)
 
 void gpst_version()
 {
-  cout << "This is the X-Calibur Simulation Toolkit version "
+  cout << "This is the Gamma-ray Polarimetry Simulation Toolkit version "
        << GPST_VERSION_STRING << " (" << GPST_RELEASE_DATE << ')' << endl;
 }
 
