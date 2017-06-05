@@ -4,6 +4,8 @@ GPST 14
 
 sensitivityscale = 0.2
 
+renormalize = [ 1000., 100, 1000 ]
+
 legend = [ 0.16 0.07 0.56 0.33 ]
 
 clean = true
