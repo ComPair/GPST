@@ -1,0 +1,10 @@
+;; This file describes the input files to be used for the simulation
+;; of the AMEGO baseline model
+
+detectoremin    = 100.                     ; AMEGO sensitivity starts at 100 keV
+detectordeltae  = 1.                       ; AMEGO sensitivity is specified in 1 keV steps
+detectornbins   = 9900                     ; 1keV steps from 100keV to 10MeV (excluded)
+
+sensitivityfile = "signal.AMEGO.txt"       ; Baseline AMEGO sensitivty file
+backgroundfile  = "background.AMEGO.txt"   ; Baseline AMEGO background file
+modulationfile  = "modulation.AMEGO.txt"   ; Baseline AMEGO modulation factor
