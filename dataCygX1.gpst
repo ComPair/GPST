@@ -1,0 +1,34 @@
+GPST 14
+
+@include "$GPST_DATA_DIR/amego.det"
+sensitivityscale = 0.2
+
+renormalize = 500
+
+legend = [ 0.53 0.58 0.93 0.84 ]
+
+clean = true
+
+name = "Cyg X-1"
+datalabel = "Obs. Time: 3 days"
+
+time = 7
+
+energybins = [ 100 135 200 300 400 500 650 800 1000 2000 ]
+
+fluxmorelabels = true
+fluxunit = cgse9
+fluxmin = 0.905
+;fluxmax = 10
+fracmax = 0.79
+chimin = -45
+chimax = 45
+
+deltachi = 60
+
+@include "modelCygX1.txt"
+
+showmdp   = true
+color     = kRed + 2
+width     = 5
+label     = "Min. Det. Polarization"
