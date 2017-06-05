@@ -8,3 +8,4 @@ detectornbins   = 9900                     ; 1keV steps from 100keV to 10MeV (ex
 sensitivityfile = "signal.AMEGO.txt"       ; Baseline AMEGO sensitivty file
 backgroundfile  = "background.AMEGO.txt"   ; Baseline AMEGO background file
 modulationfile  = "modulation.AMEGO.txt"   ; Baseline AMEGO modulation factor
+referencerange  = [ 100., 1000. ]          ; Reference energy range for scaling model fluxes
