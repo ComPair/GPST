@@ -10,7 +10,7 @@
  *
  * Change Log
  * ----------
- * 06/05/17 - Version 14  - Initial adaptation from XST - FK
+ * 06/05/17 - Version 14  - Initial adaptation from XST version 13 - FK
  */
 
 
@@ -689,6 +689,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   int currentComponentStyle = -1;
   Width_t currentComponentWidth = 2;
   int currentComponentLegend = -1;
+  double ontime = 1;
 
   while (fp_in) {
     while (!fp_in->eof()) {
@@ -1042,6 +1043,10 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
           GPST_ASSERT_NOT_ARRAY(time);
           GPST_USE_DOUBLE(time, time);
           time*=86400.;
+        } else if (key == "ontime") {
+          GPST_REQUIRE_MIN_VERSION(ontime, 14);
+          GPST_ASSERT_NOT_ARRAY(ontime);
+          GPST_USE_DOUBLE(ontime, ontime);
         } else if (key == "fluxmin") {
           GPST_ASSERT_NOT_ARRAY(fluxmin);
           GPST_USE_DOUBLE(fluxmin, Hymin);
@@ -1559,6 +1564,9 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   if (time < 0) {
     log_fatal("On input: time parameter not specified");
   }
+
+  // apply on time fraction
+  time *= ontime;
 
   if (nPhaseBins > 0) {
     if (nBins != 2) {

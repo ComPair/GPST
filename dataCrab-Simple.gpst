@@ -2,8 +2,6 @@ GPST 14
 
 @include "$GPST_DATA_DIR/amego.det"
 
-sensitivityscale = 0.2
-
 renormalize = [ 1000., 100, 1000 ]
 
 legend = [ 0.16 0.07 0.56 0.33 ]
@@ -11,11 +9,11 @@ legend = [ 0.16 0.07 0.56 0.33 ]
 clean = true
 
 name = "Crab Nebula"
-datalabel = "Obs. Time: 14 days"
+datalabel = "Obs. Time: 30 days"
 
-time = 14
+time = 30
 
-energybins = [ 100 200 300 500 800 1000 3000 9999 ]
+energybins = [ 100 200 300 500 1000 3000 9999 ]
 
 fluxmorelabels = true
 fluxunit = cgse9

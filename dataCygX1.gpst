@@ -1,7 +1,6 @@
 GPST 14
 
 @include "$GPST_DATA_DIR/amego.det"
-sensitivityscale = 0.2
 
 renormalize = 500
 
@@ -10,11 +9,11 @@ legend = [ 0.53 0.58 0.93 0.84 ]
 clean = true
 
 name = "Cyg X-1"
-datalabel = "Obs. Time: 3 days"
+datalabel = "Obs. Time: 10 days"
 
-time = 7
+time = 10
 
-energybins = [ 100 135 200 300 400 500 650 800 1000 2000 ]
+energybins = [ 100 200 300 500 1000 2000 ]
 
 fluxmorelabels = true
 fluxunit = cgse9
