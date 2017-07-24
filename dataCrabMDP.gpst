@@ -1,0 +1,37 @@
+GPST 14
+
+@include "$GPST_DATA_DIR/amego.det"
+
+renormalize = [ 10., 100, 1000 ]
+
+legend = [ 0.16 0.07 0.56 0.33 ]
+
+clean = true
+
+name = "10 mCrab source"
+datalabel = "Obs. Time: 1Ms"
+
+time = 11.57
+ontime = 1
+
+;energybins = [ 100 200 300 500 1000 2000 5000 ]
+energybins = [ 300 3000 ]
+
+fluxmorelabels = true
+fluxunit = cgse9
+fluxmin = 3.1
+fluxmax = 10
+fracmax = 0.69
+chimin = -6
+chimax = 5.99
+
+component = "Crab nebula"
+energy    = [ 100      9999     ]
+flux      = [ 8.155e-9 4.087e-9 ]
+fraction  = [ 0.5      0.5      ]
+angle     = [ 0.       0.       ]
+
+showmdp   = true
+color     = kRed + 2
+width     = 5
+label     = "Min. Det. Polarization"
