@@ -9,17 +9,23 @@ GPST 14
 renormalize = [ 1000., 100, 1000 ]
 
 ; Place a legend on the flux panel
-legend = [ 0.15 0.60 0.55 0.86 ]
+legend = [ 0.15 0.51 0.55 0.86 ]
 
 ; Uncomment this line in order to get rid of the version / data information on
 ; the plot
 ;clean = true
 
 ; Name the simulation. This will be the label of the model curve in the legend
-name = "Crab Nebula"
+name = "Outer gap model"
+
+; Set the color of the model curve
+color     = kGreen + 1
 
 ; Put a label for the observed data on the legend
 datalabel = "Obs. Time: 10 days"
+
+; Set the line thickness of the data points
+width = 2
 
 ; Observation time. Will be multiplied by the 'ontime' value. The amego.det
 ; file included above initializes that to 0.1. But you could change it below.
@@ -47,13 +53,13 @@ fluxunit = cgse9
 
 ; Set the range of the flux axis
 fluxmin = 3.1
-fluxmax = 14
+fluxmax = 15
 
 ; Set the maximum of the polarization fraction axis
 fracmax = 0.99
 
 ; Set the range of the polarization angle axis
-chimin = -25
+chimin = -35
 chimax = 65
 
 ; Shift the polarization angle so that it is centered around 0
@@ -62,14 +68,18 @@ deltachi = -90
 ; Include the detailed model file
 @include "crab-outer-gap-model-incl65deg.gpstmodel"
 
-; Set the color of the model curve
-color     = kGreen + 1
-
 ; Define the spectrum. In case of a phase-dependent simulation there is
 ; no polarization information here.
 component = "Crab nebula"
 energy    = [ 100      9999     ]
 flux      = [ 8.155e-9 4.087e-9 ]
+
+; Show an alternative model. Note that this model file does not have a
+; flux parameter since the light curve is exactly the same as the one used
+; for the simulation.
+model     = "Two-pole caustic model"
+@include "crab-twopole-caustic-model-incl65deg.gpstmodel"
+color     = kBlue + 1
 
 ; Show MDP in each phase bin, show it as a thick dark red line
 showmdp   = true
