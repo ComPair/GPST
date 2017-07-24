@@ -1,0 +1,78 @@
+GPST 14
+
+; Include the AMEGO detector definition. Pulls in the correct sensitivity
+; and background files.
+@include "$GPST_DATA_DIR/amego.det"
+
+; Average Flux in mCrab, calculated from the energy range given by
+; the 2nd and 3rd argument
+renormalize = [ 1000., 100, 1000 ]
+
+; Place a legend on the flux panel
+legend = [ 0.15 0.60 0.55 0.86 ]
+
+; Uncomment this line in order to get rid of the version / data information on
+; the plot
+;clean = true
+
+; Name the simulation. This will be the label of the model curve in the legend
+name = "Crab Nebula"
+
+; Put a label for the observed data on the legend
+datalabel = "Obs. Time: 10 days"
+
+; Observation time. Will be multiplied by the 'ontime' value. The amego.det
+; file included above initializes that to 0.1. But you could change it below.
+time = 10
+; ontime = 0.199
+
+; Energy range. Phase dependent models use the energybins keyword to
+; specify a range of energies over which the flux will be integrated.
+; Note, that this has to be an array of _two_ values.
+energybins = [ 300 3000 ]
+
+; Phase bins (as many as you want in the range of phases given in
+; your model). You can give values in whatever range you want. It only has
+; to be consistent with your model. Common choices are either 0...1 or
+; 0...2pi.
+; Here I am using a range from -0.2 -0.8 so that the first peak is not at the
+; edge. I am also cheating a bit in the choice of bins to make the figure look
+; nice. A more sincere version with evenly spaced bins is below.
+phasebins = [ -0.2 -0.1 -0.03 0.03 0.13 0.24 0.32 0.37 0.42 0.55 0.68 0.8 ]
+;phasebins = [ -.2 -.1 0 .1 .2 .3 .4 .5 .6 .7 .8 ]
+
+; Put a factor of 10^-9 into the flux unit for display. The other possible option
+; is cgs.
+fluxunit = cgse9
+
+; Set the range of the flux axis
+fluxmin = 3.1
+fluxmax = 14
+
+; Set the maximum of the polarization fraction axis
+fracmax = 0.99
+
+; Set the range of the polarization angle axis
+chimin = -25
+chimax = 65
+
+; Shift the polarization angle so that it is centered around 0
+deltachi = -90
+
+; Include the detailed model file
+@include "crab-outer-gap-model-incl65deg.gpstmodel"
+
+; Set the color of the model curve
+color     = kGreen + 1
+
+; Define the spectrum. In case of a phase-dependent simulation there is
+; no polarization information here.
+component = "Crab nebula"
+energy    = [ 100      9999     ]
+flux      = [ 8.155e-9 4.087e-9 ]
+
+; Show MDP in each phase bin, show it as a thick dark red line
+showmdp   = true
+color     = kRed + 2
+width     = 5
+label     = "Min. Det. Polarization"
