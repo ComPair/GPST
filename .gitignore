@@ -1,4 +1,6 @@
 *~
+.#*
+\#*#
 
 # Compiled C objects and ROOT dependency files
 *.so
