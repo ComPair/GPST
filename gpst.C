@@ -76,6 +76,7 @@ Result result;
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -2346,6 +2347,22 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     bMdp->SetMarkerColor(mdpColor);
     if ((mdp_legend >= 0) && !mdpLabel.empty())
       legends[mdp_legend].legend->AddEntry(bMdp, mdpLabel.c_str(), "L");
+
+    const double mdpPrintScale = (fractionunit == Frac ? 100 : 1);
+
+    int coutPrecision = cout.precision();
+    ios::fmtflags coutFlags = cout.flags();
+    cout.setf(ios::fixed, ios::floatfield);
+    std::cout << "\n";
+    log_info("MDP data:");
+    std::cout << "  Energy  [MeV]   | MDP [%] \n"
+              << "----------------------------\n";
+    for (int i = 0; i < kd; ++i) {
+      std::cout << std::setprecision(3) << std::setw(6) << (xc[i]-xem[i])*1e-3 << " ... " << std::setw(6) << (xc[i]+xep[i])*1e-3 << " | " << std::setprecision(2) << std::setw(5) << mdpPrintScale * ycMdp[i] << "\n";
+    }
+    std::cout << std::endl;
+    cout.precision(coutPrecision);
+    cout.flags(coutFlags);
   }
   
   if (fluxunit == CGSe9) {
