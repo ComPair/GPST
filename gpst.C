@@ -342,6 +342,10 @@ namespace math {
   inline T sqr(const T &x) {
     return x*x;
   }
+
+  inline bool isnan(double x) {
+    return x != x;
+  }
   
 }
 
@@ -633,8 +637,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   double Hchimin = 0;
   double Hchimax = 0;
   double deltachi = 0;
-  double userXmin = -1;
-  double userXmax = -1;
+  double userXmin = NAN;
+  double userXmax = NAN;
   int fluxNdiv = 510;
   int piNdiv = 510;
   int chiNdiv = 510;
@@ -1561,14 +1565,15 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     extraModels.push_back(currentExtraModel);
   }
 
+  // apply on time fraction
+  time *= ontime;
+
   // file is read, now it's time for sanity checks and summary output
   if (time < 0) {
     log_fatal("On input: time parameter not specified");
   }
 
-  // apply on time fraction
-  time *= ontime;
-
+  // check that energy and phase bins are consistent
   if (nPhaseBins > 0) {
     if (nBins != 2) {
       log_fatal("Phase bins have been specified. In this case exactly 2 energy "
@@ -1625,7 +1630,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
               " keywords. Please use only one of them.");
   }
 
-  log_info("Observation time %.1lf day(s)", time/86400);
+  log_info("Observation time %.1lf day(s) (on-time)", time/86400);
   log_info("Number of spectral components: %d", nComp);
   log_info("Number of energy bins: %d", nBins-1);
 
@@ -2355,10 +2360,24 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     cout.setf(ios::fixed, ios::floatfield);
     std::cout << "\n";
     log_info("MDP data:");
-    std::cout << "  Energy  [MeV]   | MDP [%] \n"
-              << "----------------------------\n";
-    for (int i = 0; i < kd; ++i) {
-      std::cout << std::setprecision(3) << std::setw(6) << (xc[i]-xem[i])*1e-3 << " ... " << std::setw(6) << (xc[i]+xep[i])*1e-3 << " | " << std::setprecision(2) << std::setw(5) << mdpPrintScale * ycMdp[i] << "\n";
+    if (have_phase) {
+      std::cout << "      Phase       | MDP [%] \n"
+                << "----------------------------\n";
+      for (int i = 0; i < kd; ++i) {
+        std::cout << std::setprecision(3) << std::setw(6) << xc[i]-xem[i]
+                  << " ... " << std::setw(6) << xc[i]+xep[i] << " | "
+                  << std::setprecision(2) << std::setw(5)
+                  << mdpPrintScale * ycMdp[i] << "\n";
+      }
+    } else {
+      std::cout << "  Energy  [MeV]   | MDP [%] \n"
+                << "----------------------------\n";
+      for (int i = 0; i < kd; ++i) {
+        std::cout << std::setprecision(3) << std::setw(6) << (xc[i]-xem[i])*1e-3
+                  << " ... " << std::setw(6) << (xc[i]+xep[i])*1e-3 << " | "
+                  << std::setprecision(2) << std::setw(5)
+                  << mdpPrintScale * ycMdp[i] << "\n";
+      }
     }
     std::cout << std::endl;
     cout.precision(coutPrecision);
@@ -2373,8 +2392,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   if (Hymin>0.) ymin=Hymin;
   if (Hymax>0.) ymax=Hymax;
 
-  if (userXmin > 0) xmin = userXmin;
-  if (userXmax > 0) xmax = userXmax;
+  if (!math::isnan(userXmin)) xmin = userXmin;
+  if (!math::isnan(userXmax)) xmax = userXmax;
 
   c00[0]->Divide(1, panels.size());
 
