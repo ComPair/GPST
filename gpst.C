@@ -676,11 +676,22 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   FluxUnit fluxunit = CGS;
   FractionUnit fractionunit = Frac;
 
+  enum ModelOrSimulation {
+    CustomizeModel,
+    CustomizeSimulation
+  };
+
+  ModelOrSimulation modelOrSimulation = CustomizeModel;
+  
   string datalabel = "Measurement";
+  Color_t datacolor = kBlack;
+  Width_t datawidth = 1;
+  
   string simulation_name;
   Color_t linecolor = kBlack;
   Style_t linestyle = kSolid;
   Width_t linewidth = 3;
+  
   ParserState pState = ExpectVersionInfo;
   int pFlags = NoParserFlags;
   int phaseFlags = 0;
@@ -991,6 +1002,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
           GPST_ASSERT_NOT_ARRAY(name);
           simulation_name = value;
           model_legend = legends.size()-1;
+          modelOrSimulation = CustomizeModel;
         } else if (key == "renormalize") {
           if (is_array) {
             if (read_version < 14) {
@@ -1369,6 +1381,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
             currentExtraModel.color = color;
           } else if (customizeMdp) {
             mdpColor = color;
+          } else if (modelOrSimulation == CustomizeSimulation) {
+            datacolor = color;
           } else {
             linecolor = color;
           }
@@ -1402,7 +1416,9 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
             currentExtraModel.width = width;
           } else if (customizeMdp) {
             mdpWidth = width;
-          } else {
+          } else if (modelOrSimulation == CustomizeSimulation) {
+            datawidth = width;
+          }  else {
             linewidth = width;
           }
         } else if (key == "datalabel") {
@@ -1410,6 +1426,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
           GPST_ASSERT_NOT_ARRAY(datalabel);
           datalabel = value;
           data_legend = legends.size()-1;
+          modelOrSimulation = CustomizeSimulation;
         } else if (key == "mirror") {
           GPST_REQUIRE_MIN_VERSION(mirror, 8);
           GPST_ASSERT_NOT_ARRAY(mirror);
@@ -2314,10 +2331,12 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     }
   }
   bFlux = new TGraphAsymmErrors(kd,xc,ycFlux,xem,xep,yeFlux,yeFlux);
+  bFlux->SetLineColor(datacolor);
+  bFlux->SetMarkerColor(datacolor);
   if (large)
     bFlux->SetLineWidth(2);
   else
-    bFlux->SetLineWidth(1);
+    bFlux->SetLineWidth(datawidth);
   bFlux->SetMarkerStyle(24);
   if (data_legend >= 0)
     legends[data_legend].legend->AddEntry(bFlux, datalabel.c_str(), "LP");
@@ -2330,18 +2349,22 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     }
   }
   bPi = new TGraphAsymmErrors(kd,xc,ycPi,xem,xep,yePiLow,yePiHigh);
+  bPi->SetLineColor(datacolor);
+  bPi->SetMarkerColor(datacolor);
   if (large)
     bPi->SetLineWidth(2);
   else
-    bPi->SetLineWidth(1);    
+    bPi->SetLineWidth(datawidth);
   bPi->SetMarkerStyle(24);    
     
   bChi = new TGraphAsymmErrors(kd,xc,ycChi,xem,xep,yeChi,yeChi);
+  bChi->SetLineColor(datacolor);
+  bChi->SetMarkerColor(datacolor);
   if (large)
     bChi->SetLineWidth(2);
   else
-    bChi->SetLineWidth(1);    
-  bChi->SetMarkerStyle(24);    
+    bChi->SetLineWidth(datawidth);
+  bChi->SetMarkerStyle(24);
 
   if (showmdp) {
     bMdp = new TGraphAsymmErrors(kd, xc, ycMdp, xem, xep);
