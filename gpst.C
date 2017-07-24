@@ -5,18 +5,20 @@
  * Based on the X-Calibur Simulation Toolkit (XST)
  * by Henric Krawczynski and Fabian Kislat
  *
- * A detailed manual can be found at 
- *    https://sites.physics.wustl.edu/xcalibur/wiki/index.php/X-Calibur_observation_simulation_code
- *
  * Change Log
  * ----------
- * 06/05/17 - Version 14  - Initial adaptation from XST version 13 - FK
+ * 06/05/17 - Version 14   - Initial adaptation from XST version 13. - FK
+ * 07/24/17 - Version 14.1 - Improved display of MDP in phase-dependent
+ *                           simulations. - FK
+ *                           Changed behavior of "color" and "width" so that
+ *                           parameters of the simulation points can be
+ *                           adjusted. - FK
  */
 
 
 #define GPST_VERSION 14
-#define GPST_VERSION_STRING "14.0"
-#define GPST_RELEASE_DATE "06/05/2017"
+#define GPST_VERSION_STRING "14.1"
+#define GPST_RELEASE_DATE "07/24/2017"
 
 
 #include <TCanvas.h>
