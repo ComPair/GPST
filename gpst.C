@@ -33,6 +33,7 @@
 #include <TLine.h>
 #include <TMultiGraph.h>
 #include <TPaveText.h>
+#include <TRandom.h>
 #include <TRandom3.h>
 #include <TROOT.h>
 #include <TStyle.h>
@@ -55,6 +56,7 @@ struct Result {
   TGraphAsymmErrors *angle;
 
   void info();
+  void print() const;
   void save();
   void saveAs(const std::string &filename);
 };
@@ -64,6 +66,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug);
 void gpst_version();
 void save();
 void saveAs(const std::string &filename);
+void print();
 
 Result result;
 
@@ -293,9 +296,52 @@ log_fatal_impl(const char *format, int line, ...)
   log_fatal_impl(format, __LINE__, ##__VA_ARGS__)
 
 
-inline TRandom3& getRNG() {
-  static TRandom3 rng(random_seed);
-  return rng;
+class NoRandom : public TRandom {
+public:
+  NoRandom(UInt_t = 65539) {}
+  ~NoRandom() {}
+  
+  Int_t Binomial(Int_t ntot, Double_t) { return ntot; }
+  Double_t BreitWigner(Double_t mean = 0, Double_t = 1) { return mean; }
+  Double_t Exp(Double_t tau) { return tau; }
+  Double_t Gaus(Double_t mean = 0, Double_t = 1) { return mean; }
+  UInt_t Integer(UInt_t imax) { return imax; }
+  Double_t Landau(Double_t mean = 0, Double_t = 1) { return mean; }
+  Int_t Poisson(Double_t mean) { return Int_t(mean); }
+  Double_t PoissonD(Double_t mean) { return mean; }
+};
+
+
+class RNGManager {
+  TRandom *rng_;
+  
+  RNGManager() : rng_(new NoRandom) {}
+  ~RNGManager() { delete rng_; }
+
+  RNGManager(const RNGManager&);
+  RNGManager& operator=(const RNGManager&);
+
+public:
+  static RNGManager& Instance() {
+    static RNGManager instance;
+    return instance;
+  }
+
+  TRandom* getRNG() {
+    return rng_;
+  }
+
+  void setRNG(TRandom *rng) {
+    if (rng != rng_) {
+      delete rng_;
+      rng_ = rng;
+    }
+  }
+};
+
+
+inline TRandom& getRNG() {
+  return *RNGManager::Instance().getRNG();
 }
 
 
@@ -566,6 +612,40 @@ void Result::saveAs(const std::string &filename)
 }
 
 
+void Result::print() const
+{
+  int coutPrecision = cout.precision();
+  ios::fmtflags coutFlags = cout.flags();
+  cout.setf(ios::fixed, ios::floatfield);
+  std::cout << "\n";
+  log_info("Polarization data:");
+  std::cout << "  Energy  [MeV]   | Flux [10¯⁹ erg cm¯² s¯¹] |  Pol. Frac. [%]  |  Pol. Angle [°] \n"
+            << "----------------------------------------------------------------------------------\n";
+
+  int npoints = flux->GetN();
+  for (int i = 0; i < npoints; ++i) {
+    double elow = flux->GetX()[i] - flux->GetEXlow()[i];
+    double ehigh = flux->GetX()[i] + flux->GetEXhigh()[i];
+    
+    // note: for flux and angle EYlow and EYhigh are the same
+    std::cout << std::setprecision(3) << std::setw(6) << 1e-3*elow
+              << " ... " << std::setw(6) << 1e-3*ehigh << " |   "
+              << std::setprecision(5) << std::setw(7) << 1e9*flux->GetY()[i]
+              << " +/- " << std::setw(7) << 1e9*flux->GetEYlow()[i] << "    | "
+              << std::setprecision(1) << std::setw(4) << 100*fraction->GetY()[i]
+              << " +" << std::setw(4) << 100*fraction->GetEYlow()[i]
+              << " -" << std::setw(4) << 100*fraction->GetEYhigh()[i] << " | "
+              << std::setw(5) << angle->GetY()[i]
+              << " +/- " << std::setw(5) << angle->GetEYlow()[i] << '\n';
+  }
+
+  std::cout << std::endl;
+  cout.precision(coutPrecision);
+  cout.flags(coutFlags);
+}
+
+
+
 void gpst(const char *name, bool plot_clean, bool large, bool debug)
 {
   // store in global variable
@@ -586,6 +666,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   double modulation_factor = 0.52;
   bool have_modulationfactor_keyword = false;
   string modulationFile = "";
+  bool no_random = false;
+  bool print_table = false;
 
 #define MaxB 100
   double bEnergy[MaxB];
@@ -1494,6 +1576,24 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
             log_fatal("On line %d of input file: Expected boolean value but got "
                       "'%s'", linecount, value.c_str());
           }
+        } else if (key == "norandom") {
+          GPST_REQUIRE_MIN_VERSION(norandom, 14);
+          GPST_ASSERT_NOT_ARRAY(norandom);
+          try {
+            no_random = interpretBoolean(value);
+          } catch (...) {
+            log_fatal("On line %d of input file: Expected boolean value but got "
+                      "'%s'", linecount, value.c_str());
+          }
+        } else if (key == "print") {
+          GPST_REQUIRE_MIN_VERSION(print, 14);
+          GPST_ASSERT_NOT_ARRAY(print);
+          try {
+            print_table = interpretBoolean(value);
+          } catch (...) {
+            log_fatal("On line %d of input file: Expected boolean value but got "
+                      "'%s'", linecount, value.c_str());
+          }
         } else if (key == "detectoremin") {
           GPST_REQUIRE_MIN_VERSION(detectoremin, 14);
           GPST_ASSERT_NOT_ARRAY(detectoremin);
@@ -1554,6 +1654,10 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     } else {
       fp_in = NULL;
     }
+  }
+
+  if (!no_random) {
+    RNGManager::Instance().setRNG(new TRandom(random_seed));
   }
 
   const double mdpFactor = (fractionunit == Frac ? 4.29 : 429);
@@ -1858,30 +1962,31 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   }
 
     
-  if (aFlux > 0.) {
-    double average1=0.;
-    double average2=0.;
-    for (int i = 0; i < NumBins; ++i) {
-      double eC =
-        eSensitivityMin + 0.5*deltaESensitivity + i * deltaESensitivity;
-      if (eC < scaleEmin) continue;
-      if (eC > scaleEmax) break;
-      
-      double isum = 0;
-      for (int j = 0; j < nComp; ++j) {
-        isum += get_table(dE[j], dI[j], nP[j], eC);
-      }
-      
-      if (isum > 0.) {
-        /* we divide by eC here to get the flux - rather than the nu-Fnu flux */
-        average1 += isum/eC;
-        average2 += Crab(eC)/eC; /* do the same for the Crab */
-      }
+  double average1=0.;
+  double average2=0.;
+  for (int i = 0; i < NumBins; ++i) {
+    double eC =
+      eSensitivityMin + 0.5*deltaESensitivity + i * deltaESensitivity;
+    if (eC < scaleEmin) continue;
+    if (eC > scaleEmax) break;
+    
+    double isum = 0;
+    for (int j = 0; j < nComp; ++j) {
+      isum += get_table(dE[j], dI[j], nP[j], eC);
     }
     
-    log_info("The fluxes you entered correspond to: %.3lg mCrab", average1/average2*1000.);
+    if (isum > 0.) {
+      /* we divide by eC here to get the flux - rather than the nu-Fnu flux */
+        average1 += isum/eC;
+        average2 += Crab(eC)/eC; /* do the same for the Crab */
+    }
+  }
+  
+  log_info("The fluxes you entered correspond to: %.3lg mCrab", average1/average2*1000.);
+  
+  if (aFlux > 0.) {
     log_info("Renormalizing flux to %.3lg mCrab", aFlux);
-
+    
     double scale = aFlux/(average1/average2)/1000.;
     log_info("Scaling factor: %.3f", scale);
  
@@ -2247,6 +2352,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     }
   } else {
     double nSignalTotal = 0;
+    double nBackgroundTotal = 0;
+    double nCrabTotal = 0;
     log_debug("Energy dependent model with %d bins", nBins);
     for (int i=0;i<nBins-1;i++)
     {
@@ -2265,6 +2372,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       double nBackground=0.;
       double fluxInt=0;
       double modulationFactor = 0;
+      double nCrab = 0;
       int intP = 0;
       for (double energy=bEnergy[i];
            energy<=bEnergy[i+1];
@@ -2280,6 +2388,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
         if (bin<0) { log_fatal("bin < 0: %lg", energy); }
         if (bin>=NumBins) { log_fatal("bin >= NumBins: %lg", energy); }
 
+        nCrab += nS[bin] * time;
         nSignal += weight * nS[bin];
         nBackground += time*nBG[bin];
         double this_flux =
@@ -2292,7 +2401,12 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       
       modulationFactor /= fluxInt;
       nSignalTotal += nSignal;
-      log_debug("eC: %.2f -- nSignal: %.2f", eC, nSignal);
+      nBackgroundTotal += nBackground;
+      nCrabTotal += nCrab;
+
+      log_debug("eC: %.2f -- nSignal:     %.2f", eC, nSignal);
+      log_debug("eC: %.2f -- nBackground: %.2f", eC, nBackground);
+      log_debug("eC: %.2f -- Modulation:  %.2f", eC, modulationFactor);
       
       fluxInt *= eC*eC/(deltaESensitivity*intP);
 
@@ -2319,6 +2433,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       if (PiM > 2*PiELow) kd++;
     }
     log_info("Integral source rate: %.3fHz", nSignalTotal/time);
+    log_info("Integral crab rate: %.3fHz", nCrabTotal/time);
+    log_info("Integral background rate: %.3fHz", nBackgroundTotal/time);
   }    
 
   TGraphAsymmErrors *bFlux;
@@ -2685,7 +2801,11 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   c00[0]->Update();
 
   result = Result(name, c00[0], bFlux, bPi, bChi);
+
   log_info("\x1b[1m=== Done ===\x1b[0m");
+
+  if (print_table) result.print();
+
   log_info("You can now access and save the result through the variable 'result'.");
   result.info();
 
@@ -2716,7 +2836,7 @@ void getValuesAndErrors(double Nsrc, double Nbg, double mu, double aT,
                         double &fluxE, double &aELow, double &aEHigh,
                         double &phiE)
 {
-  TRandom3 &rng = getRNG();
+  TRandom &rng = getRNG();
   fluxM=rng.Gaus(Nsrc,sqrt(Nsrc));
 
   //	double ratio = N n*n / 4. / (sigma*sigma);
@@ -3463,6 +3583,12 @@ void save()
 void saveAs(const std::string &filename)
 {
   gInterpreter->ProcessLine(("result.saveAs(" + filename + ");").c_str());
+}
+
+
+void print()
+{
+  gInterpreter->ProcessLine("result.print()");
 }
 
 
