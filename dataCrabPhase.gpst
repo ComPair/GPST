@@ -59,11 +59,11 @@ fluxmax = 15
 fracmax = 0.99
 
 ; Set the range of the polarization angle axis
-chimin = -35
+chimin = -65
 chimax = 65
 
 ; Shift the polarization angle so that it is centered around 0
-deltachi = -90
+deltachi = -120
 
 ; Include the detailed model file
 @include "crab-outer-gap-model-incl65deg.gpstmodel"
