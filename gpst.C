@@ -13,12 +13,15 @@
  *                           Changed behavior of "color" and "width" so that
  *                           parameters of the simulation points can be
  *                           adjusted. - FK
+ * 03/27/18 - Version 14.2 - Updated background. - FK
+ *                           Add option to disable randomization. - FK
+ *                           Add function to print flux data. - FK
  */
 
 
 #define GPST_VERSION 14
-#define GPST_VERSION_STRING "14.1"
-#define GPST_RELEASE_DATE "07/24/2017"
+#define GPST_VERSION_STRING "14.2"
+#define GPST_RELEASE_DATE "03/27/2018"
 
 
 #include <TCanvas.h>
