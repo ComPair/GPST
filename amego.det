@@ -6,7 +6,7 @@ detectordeltae  = 1.                       ; AMEGO sensitivity is specified in 1
 detectornbins   = 9900                     ; 1keV steps from 100keV to 10MeV (excluded)
 
 sensitivityfile = "signal.AMEGO.txt"       ; Baseline AMEGO sensitivty file
-backgroundfile  = "background-new.AMEGO.txt"   ; Baseline AMEGO background file
+backgroundfile  = "background.AMEGO.txt"   ; Baseline AMEGO background file
 modulationfile  = "modulation.AMEGO.txt"   ; Baseline AMEGO modulation factor
 referencerange  = [ 100., 1000. ]          ; Reference energy range for scaling model fluxes
 ; ontime          = 0.199                    ; Based on a 2.5sr field of view
