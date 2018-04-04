@@ -7,7 +7,7 @@
 # by Henric Krawczynski and Fabian Kislat
 #
 # A detailed manual can be found at 
-#    https://sites.physics.wustl.edu/xcalibur/wiki/index.php/X-Calibur_observation_simulation_code
+#    https://github.com/ComPair/GPST
 #
 # For Change Log see the file gpst.C
 #
@@ -51,7 +51,7 @@ print_help() {
     echo "         File with model and simulation parameters"
     echo ""
     echo "A detailed manual can be found at"
-    echo -e "    \x1b[4mhttps://sites.physics.wustl.edu/xcalibur/wiki/index.php/X-Calibur_observation_simulation_code\x1b[0m"
+    echo -e "    \x1b[4mhttps://github.com/ComPair/GPST\x1b[0m"
 }
 
 
