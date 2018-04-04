@@ -67,7 +67,7 @@ Parameters:
     input_file
          File with model and simulation parameters
 A detailed manual can be found at
-    https://sites.physics.wustl.edu/xcalibur/wiki/index.php/X-Calibur_observation_simulation_code
+    https://github.com/ComPair/GPST
 ```
 
 
