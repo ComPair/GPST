@@ -513,8 +513,7 @@ are always added to the last legend created with the `legend` keyword. A legend
 has to be created prior to any of the keywords `name`, `datalabel`, `component`,
 `model`, `label`.
 
-* **legendcolumns** _(integer)_ &mdash; Number of columns of the legend. Default is 
-1.
+* **legendcolumns** _(integer)_ &mdash; Number of columns of the legend. Default is 1.
 
 * **legendpanel** _(special value)_ &mdash; Panel to place the legend on. Possible
 values are `flux` (flux panel, default), `frac` (polarization fraction panel),
