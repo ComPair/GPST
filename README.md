@@ -22,8 +22,13 @@ $ ./gpst.sh dataCrab-Simple.gpst
 ```
 
 This should start ROOT, compile the file `gpst.C` and run the simulation. The
-final product is a figure containing the model and simulated data. On the
-terminal you will have a ROOT prompt. You can save the figure by simply typing
+final product is a figure containing the model and simulated data similar to
+this one:
+
+![canvasCrab-Simple](./documentation/canvasCrab-Simple.png)
+
+On the terminal you will have a ROOT prompt. You can save the figure by simply 
+typing
 
 ```
 root [1] save()
