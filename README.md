@@ -144,11 +144,11 @@ it points the code to the files describing the detector sensitivity:
 "signal.AMEGO.txt" (parameter `sensitivityfile`), "background.AMEGO.txt"
 (parameter `backgroundfile`), and "modulation.AMEGO.txt" (parameter
 `modulationfile`). Each of these files is a space separated list of 9900
-floating point numbers, one for each 1keV bin in the energy range 100keV--10MeV.
+floating point numbers, one for each 1keV bin in the energy range 100keV&mdash;10MeV.
 This range is defined by the parameters `detectoremin`, `detectordeltae`, and
 `detectornbins`.
 
-* **sensitivityfile** -- "Crab" event rate for AMEGO within each energy bin.
+* **sensitivityfile** &mdash; "Crab" event rate for AMEGO within each energy bin.
 Internally, GPST converts all models into the "Crab flux",
 
    ![Crab flux](./documentation/crab-flux.jpg)
@@ -156,15 +156,15 @@ Internally, GPST converts all models into the "Crab flux",
    Effectively, this is just a reference flux (used due to the PolSTAR heritage)
    and does not have any relation to the actual Crab flux in the AMEGO energy
    range.
-* **backgroundfile** -- Background count rate in each energy bin, obtained by
+* **backgroundfile** &mdash; Background count rate in each energy bin, obtained by
 interpolating the more coarsely binned MEGALIB simulations.
-* **modulationfile** -- Modulation factor in each energy bin.
+* **modulationfile** &mdash; Modulation factor in each energy bin.
 
 Additionally, the detector file defines the following parameters:
 
-* **referencerange** -- Energy range in keV that is used when rescaling model
+* **referencerange** &mdash; Energy range in keV that is used when rescaling model
 fluxes.
-* **ontime** -- Fraction of time the target is assumed to be in the field of
+* **ontime** &mdash; Fraction of time the target is assumed to be in the field of
 view of the detector. Currently assumed to be 10%.
 
 
@@ -180,7 +180,7 @@ GPST 14
 followed by several mandatory and optional `key=value` assignments. Mandatory
 keywords are:
 
-* **sensitivityfile**, **backgroundfile**, **modulationfile** -- Detector
+* **sensitivityfile**, **backgroundfile**, **modulationfile** &mdash; Detector
 sensitivity files described in the previous section. Usually, this is taken
 care of by including the AMEGO detector config:
 
@@ -188,34 +188,34 @@ care of by including the AMEGO detector config:
    @include "$GPST_DATA_DIR/amego.det"
    ```
    
-* **energybins** -- Energy binning in keV applied to the observation defined 
+* **energybins** &mdash; Energy binning in keV applied to the observation defined 
 by an array of bin edges. When simulating the phase-dependent polarization of 
 a periodic source, exactly one energy bin must be given, i.e. the array must
 contain 2 numbers.
 
-* **time** -- Observation time in days.
+* **time** &mdash; Observation time in days.
 
 * One or more spectral components of the model to be simulated, defined by
 the following keywords:
 
-   * **component** -- A string labeling the spectral component in the legend.
+   * **component** &mdash; A string labeling the spectral component in the legend.
    This keyword starts a component block, i.e. all keywords following it,
    including model data and keywords defining the line color and style apply
    to this component.
    
-   * **energy** -- List of energies (in keV) of the model data points. GPST
+   * **energy** &mdash; List of energies (in keV) of the model data points. GPST
    will interpolate all model data between these points.
    
-   * **flux** -- Model flux in ergs/cm²/s at the energies defined in the 
+   * **flux** &mdash; Model flux in ergs/cm²/s at the energies defined in the 
    `energy` parameter. Must be an array of numbers of the same length as
    `energy`.
    
-   * **fraction** -- Polarization fraction (0 -- 1) at the energies defined 
+   * **fraction** &mdash; Polarization fraction (0 &ndash; 1) at the energies defined 
    in the `energy` parameter. Must be an array of numbers of the same length as
    `energy`. In case of phase-dependent models, this parameter of the 
    polarization energy spectrum is optional and ignored.
    
-   * **angle** -- Polarization angle in degree at the energies defined in the 
+   * **angle** &mdash; Polarization angle in degree at the energies defined in the 
    `energy` parameter. Must be an array of numbers of the same length as
    `energy`. In case of phase-dependent models, this parameter of the 
    polarization energy spectrum is optional and ignored.
@@ -257,7 +257,7 @@ be a list of exactly two energies, specifying the energy range over which the
 spectrum will be integrated. In addition, the observation will be binned in
 phase bins, which are specified by:
 
-* **phasebins** -- An array of phase bin edges defining the phase binning of
+* **phasebins** &mdash; An array of phase bin edges defining the phase binning of
 the simulated data. Similar to the energy binning in energy-dependent 
 simulations.
 
@@ -274,21 +274,21 @@ phasebins = [ -3.14159265 -2.51327412 -1.88495559 -1.25663706
 
 The following parameters are used to specify a phase-dependent model:
 
-* **phase** -- An array of phase values at which the model flux, polarization
+* **phase** &mdash; An array of phase values at which the model flux, polarization
 fraction and angle are specified. This keyword starts a phase-dependent model
 and all following keywords will apply to this model. Note, however, that it 
 must be specified before any additional models that are plotted for comparison,
 i.e. prior to the first `model` keyword (see "Keyword reference"). Must cover
 the same range of values as the `phasebins` array.
 
-* **flux** -- Phase-dependent flux in arbitrary units. In the simulation the
+* **flux** &mdash; Phase-dependent flux in arbitrary units. In the simulation the
 model energy spectrum will be integrated over the energy range given in the 
 `energybins` parameter and the flux given here will be used to scale such that
 a phase-averaged measurement will result in the given energy spectrum.
 
-* **fraction** -- Phase-dependent polarization fraction (0 -- 1).
+* **fraction** &mdash; Phase-dependent polarization fraction (0 &ndash; 1).
 
-* **angle** -- Phase-dependent polarization angle in degrees.
+* **angle** &mdash; Phase-dependent polarization angle in degrees.
 
 
 ## Keyword contexts
@@ -325,23 +325,23 @@ certain context.
 
 Keywords starting a context are:
 
-* **name** -- A label for the total model (i.e. the sum of all spectral
+* **name** &mdash; A label for the total model (i.e. the sum of all spectral
 components) in the legend.
 
-* **datalabel** -- A label for the experimental data in the legend
+* **datalabel** &mdash; A label for the experimental data in the legend
 
-* **component** -- Define a spectral component of the model to be simulated.
+* **component** &mdash; Define a spectral component of the model to be simulated.
 
-* **model** -- Define an alternative model that won't be used in the simulation
+* **model** &mdash; Define an alternative model that won't be used in the simulation
 but will only be drawn on the figure for comparison.
 
-* **phase** -- Define a phase-dependent polarization model. Starts a new context
+* **phase** &mdash; Define a phase-dependent polarization model. Starts a new context
 only if it is not preceeded by the keyword `model`.
 
-* **showmdp** -- On the polarization fraction panel, show the minimum detectable
+* **showmdp** &mdash; On the polarization fraction panel, show the minimum detectable
 polarization in each energy bin.
 
-* **legend** -- Define a legend.
+* **legend** &mdash; Define a legend.
 
 These terms will be used in the keyword reference to refer to the corresponding
 contexts. The default context is `name`. It is active until the first of the 
@@ -351,7 +351,7 @@ keywords in the list above is encountered.
 ## Keyword reference
 GPST supports about 60 keywords:
 
-* **angle** _(array of float)_ -- Polarization angle in degrees. Interpretation
+* **angle** _(array of float)_ &mdash; Polarization angle in degrees. Interpretation
 depends on context:
 
    * `component`: Energy-dependent polarization angle of the spectral component.
@@ -361,26 +361,26 @@ depends on context:
    
    * `phase`: Phase-dependent polarization angle of the simulated model.
    
-* **backgroundfile** _(string)_ -- Name of the file containing the background
+* **backgroundfile** _(string)_ &mdash; Name of the file containing the background
 count rates. See section "Detector description" for details.
 
-* **chilabel** _(string)_ -- Axis label of the polarization angle axis. Default
+* **chilabel** _(string)_ &mdash; Axis label of the polarization angle axis. Default
 is "Pol. Direction".
 
-* **chimax** _(float)_ -- Maximum of the polarization angle axis. Determined
+* **chimax** _(float)_ &mdash; Maximum of the polarization angle axis. Determined
 automatically by default.
 
-* **chimin** _(float)_ -- Minimum of the polarization angle axis. Determined
+* **chimin** _(float)_ &mdash; Minimum of the polarization angle axis. Determined
 automatically by default.
 
-* **chindiv** _(integer)_ -- Divisions on the polarization angle axis. See the
+* **chindiv** _(integer)_ &mdash; Divisions on the polarization angle axis. See the
 [ROOT manual](https://root.cern.ch/doc/v610/classTAttAxis.html#ae3067b6d4218970d09418291cbd84084)
 for an explanation.
 
-* **clean** _(boolean)_ -- By default, GPST prints a date and version number
+* **clean** _(boolean)_ &mdash; By default, GPST prints a date and version number
 on the bottom of the figure. Set `clean` to `true` to omit those.
 
-* **color** _(special integer)_ -- Line or symbol color. Interpretation depends
+* **color** _(special integer)_ &mdash; Line or symbol color. Interpretation depends
 on context, applies in all contexts, including `name`, `datalabel` and
 `showmdp`. The color is either defined as an integer number corresponding to one
 of the
@@ -398,28 +398,28 @@ a named constant plus an optional offset to indicate a color on the
    color = 634       ; Color number in my version of ROOT. Don't use!
    ```
 
-* **component** _(string)_ -- Name of a spectral component of the simulated
+* **component** _(string)_ &mdash; Name of a spectral component of the simulated
 model. Starts a `component` context and must be followed at by `energy`, `flux`,
 `fraction`, and `angle` (the last two are not needed when simulating a 
 phase-dependent model).
 
-* **datalabel** _(string)_ -- Label for the experimental data in the legend.
+* **datalabel** _(string)_ &mdash; Label for the experimental data in the legend.
 
-* **deltachi** _(float)_ -- Offset for the polarization angle in degrees. Can
+* **deltachi** _(float)_ &mdash; Offset for the polarization angle in degrees. Can
 be used to avoid awkward jumps in the figure between -90° and +90°. In most
 cases one anyway is only interested in relative changes of the polarization
 angle, not its absolute value.
 
-* **detectordeltae** _(float)_ -- Energy bin width in keV used in the detector
+* **detectordeltae** _(float)_ &mdash; Energy bin width in keV used in the detector
 definition files. See section "Detector description" for details.
 
-* **detectoremin** _(float)_ -- Low end of the first energy bin used in the
+* **detectoremin** _(float)_ &mdash; Low end of the first energy bin used in the
 detector description files. See section "Detector description" for details.
 
-* **detectornbins** _(integer)_ -- Number of energy bins in the detector
+* **detectornbins** _(integer)_ &mdash; Number of energy bins in the detector
 description files. See section "Detector description" for details.
 
-* **energy** _(array of float)_ -- Energy values at which a model is defined.
+* **energy** _(array of float)_ &mdash; Energy values at which a model is defined.
 Interpretation depends on context:
 
    * `component`: Energy values at which component flux, polarization fraction
@@ -430,12 +430,12 @@ Interpretation depends on context:
    
    Invalid in other contexts.
    
-* **energybins** _(array of float)_ -- Energy bins used for the simulated data.
+* **energybins** _(array of float)_ &mdash; Energy bins used for the simulated data.
 When performing a phase-dependent simulation (i.e. when the keyword `phase` is
 present), this array must contain exactly 2 values, which indicated the energy
 range over which the energy spectrum of the source is integrated.
 
-* **flux** _(array of float)_ -- Flux in ergs/cm²/s. Interpretation
+* **flux** _(array of float)_ &mdash; Flux in ergs/cm²/s. Interpretation
 depends on context:
 
    * `component`: Energy spectrum of the component.
@@ -445,43 +445,43 @@ depends on context:
    
    * `phase`: Phase-dependent flux of the simulated model.
    
-* **fluxlabel** _(string)_ -- Label of the flux axis. Defaults to 
+* **fluxlabel** _(string)_ &mdash; Label of the flux axis. Defaults to 
 "E f<sub>E</sub> [erg cm<sup>-2</sup> s<sup>-1</sup>]" or 
 "E f<sub>E</sub> [10<sup>-9</sup> erg cm<sup>-2</sup> s<sup>-1</sup>]", 
 depending on whether the flux is scaled with 10⁹.
 
-* **fluxmax** _(float)_ -- Maximum of the flux axis. Determined automatically
+* **fluxmax** _(float)_ &mdash; Maximum of the flux axis. Determined automatically
 by default.
 
-* **fluxmin** _(float)_ -- Minimum of the flux axis. Determined automatically
+* **fluxmin** _(float)_ &mdash; Minimum of the flux axis. Determined automatically
 by default.
 
-* **fluxmorelabels** _(boolean)_ -- Label more of the flux ticks. By default 
+* **fluxmorelabels** _(boolean)_ &mdash; Label more of the flux ticks. By default 
 only decades are labeled.
 
-* **fluxndiv** _(integer)_ -- Divisions on the flux axis. See the
+* **fluxndiv** _(integer)_ &mdash; Divisions on the flux axis. See the
 [ROOT manual](https://root.cern.ch/doc/v610/classTAttAxis.html#ae3067b6d4218970d09418291cbd84084)
 for an explanation.
 
-* **fluxunit** _(special value)_ -- Can be either `cgs` (default) or `cgse9`. 
+* **fluxunit** _(special value)_ &mdash; Can be either `cgs` (default) or `cgse9`. 
 Fluxes are always interpreted as ergs/s/cm², but can be scaled with a factor
 10⁹ for display (option `cgse9`).
 
-* **fraclabel** _(string)_ -- Label of the polarization fraction axis. Default
+* **fraclabel** _(string)_ &mdash; Label of the polarization fraction axis. Default
 is "Pol. Fraction".
 
-* **fracmax** _(float)_ -- Maximum of the polarization fraction axis. Determined
+* **fracmax** _(float)_ &mdash; Maximum of the polarization fraction axis. Determined
 automatically by default.
 
-* **fracmin** _(float)_ -- Minimum of the polarization fraction axis. Determined
+* **fracmin** _(float)_ &mdash; Minimum of the polarization fraction axis. Determined
 automatically by default.
 
-* **fracndiv** _(integer)_ -- Divisions on the polarization fraction axis. See 
+* **fracndiv** _(integer)_ &mdash; Divisions on the polarization fraction axis. See 
 the
 [ROOT manual](https://root.cern.ch/doc/v610/classTAttAxis.html#ae3067b6d4218970d09418291cbd84084)
 for an explanation.
 
-* **fraction** _(array of float)_ -- Polarization fraction (0 -- 1). 
+* **fraction** _(array of float)_ &mdash; Polarization fraction (0 &ndash; 1). 
 Interpretation depends on context:
 
    * `component`: Energy-dependent polarization fraction of the spectral 
@@ -492,72 +492,72 @@ Interpretation depends on context:
    
    * `phase`: Phase-dependent polarization fraction of the simulated model.
    
-* **fracunit** _(special value)_ -- Polarization fractions can be drawn as a 
+* **fracunit** _(special value)_ &mdash; Polarization fractions can be drawn as a 
 fraction (option `fraction`) or in percent (option `percent`). Default is 
 fraction.
 
-* **label** _(string)_ -- Label of the MDP in the legend. Must follow the 
+* **label** _(string)_ &mdash; Label of the MDP in the legend. Must follow the 
 keyword `showmdp`, i.e. only valid inside a `showmdp` context.
 
-* **large** _(boolean)_ -- Use larger labels and thicker lines for creating
+* **large** _(boolean)_ &mdash; Use larger labels and thicker lines for creating
 plots in publications.
 
-* **legend** _(array of float)_ -- Must be an array of 4 floating point numbers
+* **legend** _(array of float)_ &mdash; Must be an array of 4 floating point numbers
 which define the location of the legend within a panel of the resulting figure.
 The numbers define the bottom left (x₁, y₁) and top right (x₂, y₂) corner 
 relative to the panel: `[ x₁ y₁ x₂ y₂ ]`, where each value is in the range
-0--1 and (0, 0) corresponds to the lower left corner of the pad. This keyword
+0 &ndash; 1 and (0, 0) corresponds to the lower left corner of the pad. This keyword
 starts a `legend` context and `legendcolumns`, `legendpanel`, and `legendsize`
 apply to this legend. It is possible to create multiple legends and entries
 are always added to the last legend created with the `legend` keyword. A legend
 has to be created prior to any of the keywords `name`, `datalabel`, `component`,
 `model`, `label`.
 
-* **legendcolumns** _(integer)_ -- Number of columns of the legend. Default is 
+* **legendcolumns** _(integer)_ &mdash; Number of columns of the legend. Default is 
 1.
 
-* **legendpanel** _(special value)_ -- Panel to place the legend on. Possible
+* **legendpanel** _(special value)_ &mdash; Panel to place the legend on. Possible
 values are `flux` (flux panel, default), `frac` (polarization fraction panel),
 `angle` (polarization angle panel).
 
-* **legendsize** _(float)_ -- Font size to use for the legend. Font height as
+* **legendsize** _(float)_ &mdash; Font size to use for the legend. Font height as
 a fraction of the panel height, see the 
 [ROOT manual](https://root.cern.ch/doc/v610/classTAttText.html#T4) for more
 information. Default depends on the value of `large`.
 
-* **model** _(string)_ -- Define an alternative model to be shown in the figure
+* **model** _(string)_ &mdash; Define an alternative model to be shown in the figure
 for comparison. Starts a `model` context. Depending on whether an energy or
 phase dependent polarization is simulated, `model` must be followed by either
 `energy` or `phase` and at least one of `flux`, `fraction`, or `angle`. It is
 possible to plot only a subset of those, and accordingly only a subset have
 to be specified.
 
-* **modulationfactor** _(float)_ -- Modulation factor of the instrument. Do
+* **modulationfactor** _(float)_ &mdash; Modulation factor of the instrument. Do
 not use when simulating AMEGO.
 
-* **modulationfile** _(string)_ -- Name of the file containing the modulation
+* **modulationfile** _(string)_ &mdash; Name of the file containing the modulation
 factor as a function of energy. See section "Detector description" for details.
 
-* **name** _(string)_ -- Label for the total simulated data in the legend. Starts
+* **name** _(string)_ &mdash; Label for the total simulated data in the legend. Starts
 a `name` context.
 
-* **norandom** _(boolean)_ -- Disable the random number generator. Useful if
+* **norandom** _(boolean)_ &mdash; Disable the random number generator. Useful if
 all you want to do is calculate the MDP. Don't use for other simulations. 
 Default is `false`.
 
-* **ontime** _(float)_ -- Fraction of `time` the source is in the field of view.
+* **ontime** _(float)_ &mdash; Fraction of `time` the source is in the field of view.
 The effective observing time used in the simulation is `time` × `ontime`. Set
 to 0.1 when including `amego.det`, otherwise defaults to 1.
 
-* **panels** _(array of special values)_ -- List of panels to show. Defines 
+* **panels** _(array of special values)_ &mdash; List of panels to show. Defines 
 which of the three possible panels are shown, and in which order. The possible
 values are:
    
-   * `flux` -- Show the flux panel.
-   * `frac` -- Show the polarization fraction panel.
-   * `angle` -- Show the polarization angle panel.
+   * `flux` &mdash; Show the flux panel.
+   * `frac` &mdash; Show the polarization fraction panel.
+   * `angle` &mdash; Show the polarization angle panel.
    
-* **phase** _(array of float)_ -- List of phase values at which the 
+* **phase** _(array of float)_ &mdash; List of phase values at which the 
 phase-dependent polarization model (flux, polarization fraction and angle) is 
 defined. The range of these values is arbitrary, but should span a single phase
 of a periodic source. Two cases need to be distinguished:
@@ -572,17 +572,17 @@ of a periodic source. Two cases need to be distinguished:
    assigned to the `phasebins` keyword. See section "Phase-dependent 
    polarization models" for details.
    
-* **phasebins** _(array of float)_ -- Phase binning of simulated data. See
+* **phasebins** _(array of float)_ &mdash; Phase binning of simulated data. See
 section "Phase-dependent polarization models" for details.
 
-* **print** _(boolean)_ -- Print a table with the results. Defaults to `false`.
+* **print** _(boolean)_ &mdash; Print a table with the results. Defaults to `false`.
 
-* **referencerange** _(array of float)_ -- Array of 2 energies in keV. When
+* **referencerange** _(array of float)_ &mdash; Array of 2 energies in keV. When
 rescaling a model, use the flux in this energy range for reference. See the
 keyword `renormalize` for details. When including `amego.det`, this energy
-range is set to 100keV--1MeV. Defaults to 2--12keV.
+range is set to 100keV&mdash;1MeV. Defaults to 2&mdash;12keV.
 
-* **renormalize** _(float)_ or _(array of float)_ -- Rescale model flux. This
+* **renormalize** _(float)_ or _(array of float)_ &mdash; Rescale model flux. This
 is useful when a generic emission model does not predict the absolute flux
 observed from a source. Specifies a flux level within a given energy range
 in mCrab to which the model is scaled, while maintaining the spectral shape.
@@ -590,7 +590,7 @@ Here, 1000mCrab is defined as:
 
    ![1Crab definition](./documentation/1Crab.png)
    
-   There are two possibilities for specifying the energy range E₁--E₂:
+   There are two possibilities for specifying the energy range E₁&ndash;E₂:
    
    * If the argument to `renormalize` is a single floating point number, the
    range defined with keyword `referencerange` is used.
@@ -604,21 +604,21 @@ Here, 1000mCrab is defined as:
 	  
 	  3. The upper bound of the reference energy range.
 	  
-* **seed** _(integer)_ -- Random number generator seed. By default a random
+* **seed** _(integer)_ &mdash; Random number generator seed. By default a random
 seed (based on CPU time) is picked.
 
-* **sensitivityfile** _(string)_ -- Name of the file containing the signal
+* **sensitivityfile** _(string)_ &mdash; Name of the file containing the signal
 count rates for Crab observations. See section "Detector description" for 
 details.
 
-* **sensitivityscale** _(float)_ -- Scale the signal rate by a factor (see
+* **sensitivityscale** _(float)_ &mdash; Scale the signal rate by a factor (see
 keyword `sensitivityfile`). Default is 1.
 
-* **showmdp** _(boolean)_ -- Show the minimum detectable polarization (MDP)
+* **showmdp** _(boolean)_ &mdash; Show the minimum detectable polarization (MDP)
 in each energy of phase bin in the polarization fraction panel. Starts a
 `showmdp` context.
 
-* **style** _(integer or special value)_ -- Line style to be used for drawing.
+* **style** _(integer or special value)_ &mdash; Line style to be used for drawing.
 Applies to the current context. Arguments are a predefined
 [ROOT line style](https://root.cern.ch/doc/v610/classTAttLine.html#L3) or one
 of the following constants (with corresponding ROOT line style in parentheses):
@@ -626,21 +626,21 @@ of the following constants (with corresponding ROOT line style in parentheses):
 `dash_dotted` (5), `dash_3dot` (6), `dashed` (7), `dash_dot_dot` (8),
 `long_dashed` (9), `long_dash_dotted` (10).
 
-* **time** _(float)_ -- Observation time in days. The effective observation time
+* **time** _(float)_ &mdash; Observation time in days. The effective observation time
 is given by `time` × `ontime`.
 
-* **width** _(integer)_ -- Line width (see the 
+* **width** _(integer)_ &mdash; Line width (see the 
 [ROOT documentation](https://root.cern.ch/doc/v610/classTAttLine.html#L2) for
 an explanation). Applies in the current context.
 
-* **xlabel** _(string)_ -- Label for the X axis. Default is "Energy [keV]".
+* **xlabel** _(string)_ &mdash; Label for the X axis. Default is "Energy [keV]".
 
-* **xmax** _(float)_ -- Maximum of the X axis. Determined automatically by 
+* **xmax** _(float)_ &mdash; Maximum of the X axis. Determined automatically by 
 default.
 
-* **xmin** _(float)_ -- Minimum of the X axis. Determined automatically by 
+* **xmin** _(float)_ &mdash; Minimum of the X axis. Determined automatically by 
 default.
 
-* **xndiv** _(integer)_ -- Divisions on the X axis. See the
+* **xndiv** _(integer)_ &mdash; Divisions on the X axis. See the
 [ROOT manual](https://root.cern.ch/doc/v610/classTAttAxis.html#ae3067b6d4218970d09418291cbd84084)
 for an explanation.
