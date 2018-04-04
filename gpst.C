@@ -1642,8 +1642,8 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
 #undef GPST_CONVERT
 #undef GPST_CHECK_LENGTH
 #undef GPST_CONVERT_ARRAY
+      }
     }
-  }
 
     log_info("Closing input file '%s'", lastfilename.c_str());
     delete fp_in;
@@ -1777,9 +1777,9 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
         modelEmin = std::min(modelEmin, dE[i][j]);
         modelEmax = std::max(modelEmax, dE[i][j]);
       }
-      log_debug("Flux    #%d = %lgcm-2 s-1 keV-1", j+1, dI[i][j]);
+      log_debug("Flux    #%d = %lgerg cm-2 s-1", j+1, dI[i][j]);
       log_debug("Pol-Deg #%d = %lg%%", j+1, dPi[i][j]*100);
-      log_debug("Pol-Dir #%d = %lgdegree", j+1, dChi[i][j]);
+      log_debug("Pol-Dir #%d = %lgdeg", j+1, dChi[i][j]);
       dChi[i][j] += deltachi;
       if (dChi[i][j] > 90.) dChi[i][j] -= 180.;
       else if (dChi[i][j] < -90.) dChi[i][j] += 180.;
