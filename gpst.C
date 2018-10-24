@@ -572,7 +572,7 @@ void Result::saveAs(const std::string &filename)
   {
     canvas->Print(filename.c_str());
     return;
-  } else if (fileextension != ".txt") {
+  } else if (fileextension != "txt") {
     log_info("Unknown file extension (%s), saving as text file.",
              fileextension.c_str());
   }
