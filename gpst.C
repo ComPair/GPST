@@ -3611,7 +3611,7 @@ void save()
 
 void saveAs(const std::string &filename)
 {
-  gInterpreter->ProcessLine(("result.saveAs(" + filename + ");").c_str());
+  gInterpreter->ProcessLine(("result.saveAs(\"" + filename + "\");").c_str());
 }
 
 
