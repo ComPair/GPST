@@ -577,12 +577,10 @@ void Result::saveAs(const std::string &filename)
              fileextension.c_str());
   }
 
-  if (!flux || !fraction || !angle) {
-    log_error("Missing graphs, cannot save text file.");
-    return;
-  }
-
-  if (flux->GetN() != fraction->GetN() || flux->GetN() != angle->GetN()) {
+  if ((flux && fraction && flux->GetN() != fraction->GetN()) ||
+      (flux && angle && flux->GetN() != angle->GetN()) ||
+      (fraction && angle && fraction->GetN() != angle->GetN()))
+  {
     log_error("The number of points in the graphs don't match. "
               "Cannot save as text.");
     return;
@@ -594,9 +592,18 @@ void Result::saveAs(const std::string &filename)
     return;
   }
 
-  outfile << "# <E low/keV> <E high/keV> <flux> <flux error> "
-          << "<fraction> <sigma fraction low> <sigma fraction high> "
-          << "<angle> <sigma angle>\n";
+  outfile << "# <E low/keV> <E high/keV> ";
+
+  if (flux) {
+    outfile << "<flux> <flux error> ";
+  }
+  if (fraction) {
+    outfile << "<fraction> <sigma fraction low> <sigma fraction high> ";
+  }
+  if (angle) {
+    outfile << "<angle> <sigma angle>";
+  }
+  outfile << "\n";
 
   int npoints = flux->GetN();
   for (int i = 0; i < npoints; ++i) {
@@ -604,11 +611,19 @@ void Result::saveAs(const std::string &filename)
     double ehigh = flux->GetX()[i] + flux->GetEXhigh()[i];
     
     // note: for flux and angle EYlow and EYhigh are the same
-    outfile << elow << " " << ehigh << " "
-            << flux->GetY()[i] << " " << flux->GetEYlow()[i] << " "
-            << fraction->GetY()[i] << " " << fraction->GetEYlow()[i] << " "
-            << fraction->GetEYhigh()[i] << " "
-            << angle->GetY()[i] << " " << angle->GetEYlow()[i] << '\n';
+    outfile << elow << " " << ehigh << " ";
+
+    if (flux) {
+      outfile << flux->GetY()[i] << " " << flux->GetEYlow()[i] << " ";
+    }
+    if (fraction) {
+      outfile << fraction->GetY()[i] << " " << fraction->GetEYlow()[i] << " "
+              << fraction->GetEYhigh()[i] << " ";
+    }
+    if (angle) {
+      outfile << angle->GetY()[i] << " " << angle->GetEYlow()[i];
+    }
+    outfile << '\n';
   }
 
   outfile << std::flush;
@@ -2803,7 +2818,18 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   c00[0]->cd();
   c00[0]->Update();
 
-  result = Result(name, c00[0], bFlux, bPi, bChi);
+  TGraphAsymmErrors *gFluxResult = NULL;
+  TGraphAsymmErrors *gPiResult = NULL;
+  TGraphAsymmErrors *gChiResult = NULL;
+  for (std::vector<Panel>::const_iterator iter = panels.begin();
+       iter != panels.end();
+       ++iter)
+  {
+    if (*iter == Flux) gFluxResult = bFlux;
+    else if (*iter == Fraction) gPiResult = bPi;
+    else if (*iter == Angle) gChiResult = bChi;
+  }
+  result = Result(name, c00[0], gFluxResult, gPiResult, gChiResult);
 
   log_info("\x1b[1m=== Done ===\x1b[0m");
 
