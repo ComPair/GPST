@@ -106,7 +106,8 @@ static int random_seed = 0;
 
 enum FluxUnit {
   CGS,
-  CGSe9
+  CGSe9,
+  CGSe11
 };
 
 enum FractionUnit {
@@ -2102,6 +2103,12 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       sumFlux->GetPoint(i, px, py);
       sumFlux->SetPoint(i, px, 1e9 * py);
     }
+  } else if (fluxunit == CGSe11) {
+    for (int i = 0; i < sumFlux->GetN(); ++i) {
+      double px, py;
+      sumFlux->GetPoint(i, px, py);
+      sumFlux->SetPoint(i, px, 1e11 * py);
+    }
   }
   sumFlux->SetLineWidth(linewidth);            
   sumFlux->SetLineColor(linecolor);
@@ -2172,6 +2179,12 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
           double px, py;
           grFlux[i]->GetPoint(j, px, py);
           grFlux[i]->SetPoint(j, px, 1e9 * py);
+        }
+      } else if (fluxunit == CGSe11) {
+        for (int j = 0; j < grFlux[i]->GetN(); ++j) {
+          double px, py;
+          grFlux[i]->GetPoint(j, px, py);
+          grFlux[i]->SetPoint(j, px, 1e11 * py);
         }
       }
 
@@ -2465,7 +2478,13 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
       ycFlux[i] *= 1e9;
       yeFlux[i] *= 1e9;
     }
+  } else if (fluxunit == CGSe11) {
+    for (int i = 0; i < kd; ++i) {
+      ycFlux[i] *= 1e11;
+      yeFlux[i] *= 1e11;
+    }
   }
+
   bFlux = new TGraphAsymmErrors(kd,xc,ycFlux,xem,xep,yeFlux,yeFlux);
   bFlux->SetLineColor(datacolor);
   bFlux->SetMarkerColor(datacolor);
@@ -2546,6 +2565,9 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
   if (fluxunit == CGSe9) {
     ymin *= 1e9;
     ymax *= 1e9;
+  } else if (fluxunit == CGSe11) {
+    ymin *= 1e11;
+    ymax *= 1e11;
   }
 
   if (Hymin>0.) ymin=Hymin;
@@ -2581,6 +2603,7 @@ void gpst(const char *name, bool plot_clean, bool large, bool debug)
     gPad->SetTickx(1);
 
     if (fluxunit == CGSe9) fluxLabel = "E f_{E} [10^{-9} erg cm^{-2} s^{-1}]";
+    else if (fluxunit == CGSe11) fluxLabel = "E f_{E} [10^{-11} erg cm^{-s} s^{-1}]";
     if (!userFluxLabel.empty()) fluxLabel = userFluxLabel;
     hFrame = new TH1F("hFrame1", (";Energy [keV];" + fluxLabel).c_str(), 100, xmin, xmax);
     if (!userXLabel.empty()) {
@@ -3432,6 +3455,7 @@ FluxUnitMap makeFluxUnitMap()
   FluxUnitMap fluxunit_map;
   GPST_ADD_SPECIAL_VALUE(fluxunit_map, "cgs", CGS);
   GPST_ADD_SPECIAL_VALUE(fluxunit_map, "cgse9", CGSe9);
+  GPST_ADD_SPECIAL_VALUE(fluxunit_map, "cgse11", CGSe11);
   return fluxunit_map;
 }
 
